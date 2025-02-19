@@ -6,18 +6,43 @@
 
   tasks:
 
-  - name: "{{ my_name }} configure APT for Australian mirror"
-    ansible.builtin.deb822_repository:
-      name: "ubuntu"
-      types: ["deb", "deb-src"]
-      uris: "http://au.archive.ubuntu.com/ubuntu"
-      suites: "{{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates {{ ansible_distribution_release }}-backports {{ ansible_distribution_release }}-security"
-      components:
-        - main
-        - restricted
-        - multiverse
-        - universe
-      signed_by: "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+#  - name: "{{ my_name }} configure APT for Australian mirror"
+#    ansible.builtin.deb822_repository:
+#      name: "ubuntu"
+#      types: ["deb", "deb-src"]
+#      uris: "http://au.archive.ubuntu.com/ubuntu"
+#      suites: "{{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates {{ ansible_distribution_release }}-backports {{ ansible_distribution_release }}-security"
+#      components:
+#        - main
+#        - restricted
+#        - multiverse
+#        - universe
+#      signed_by: "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+#    when: ansible_distribution == "Ubuntu"
+#    notify: "{{ my_name }} update apt"
+
+  - name: "{{ my_name }} remove legacy sources.list"
+    ansible.builtin.copy:
+      content: '# Moved to /etc/apt/sources.list.d'
+      dest: /etc/apt/sources.list
+    when: ansible_distribution == "Ubuntu"
+    notify: "{{ my_name }} update apt"
+
+  - name: "{{ my_name }} prevent needrestart from interfering with package installs"
+    ansible.builtin.copy:
+      content: |
+        $nrconf{restart} = 'l';
+        $nrconf{kernelhints} = 0;
+      dest: /etc/needrestart/needrestart.conf
+    when: ansible_distribution == "Ubuntu"
+
+  - name: "{{ my_name }} configure APT for Australian mirror""
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/ubuntu.sources.j2"
+      dest: "/etc/apt/sources.list.d/ubuntu.sources"
+      owner: root
+      group: root
+      mode: 0644
     when: ansible_distribution == "Ubuntu"
     notify: "{{ my_name }} update apt"
 
