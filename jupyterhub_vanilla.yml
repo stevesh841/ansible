@@ -1,0 +1,91 @@
+- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: no
+
+  vars:
+    - my_name: "jupyterhub_vanilla"
+    - my_path: "/opt/sharonai/{{ my_name }}"
+    - my_packages_deb:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - git
+
+  tasks:
+
+  - name: "{{ my_name }} top level path"
+    ansible.builtin.file:
+      path: "{{ my_path }}"
+      state: directory
+      recurse: true
+      owner: 1000
+      group: 1000
+
+  - name: "{{ my_name }} install pre-requisite deb packages"
+    ansible.builtin.package:
+       name: "{{ my_packages_deb }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} install JupyterHub vanilla setup via pip"
+    ansible.builtin.pip:
+      virtualenv: "{{ my_path }}/python"
+      name: "jupyterhub<6,jupyterlab,numpy,matplotlib,pandas,configurable-http-proxy"
+    notify: "{{ my_name }} permissions"
+
+  - name: "{{ my_name }} jupyterhub path"
+    ansible.builtin.file:
+      path: "{{ my_path }}/jupyterhub"
+      state: directory
+      recurse: true
+      owner: 1000
+      group: 1000
+
+  - name: "{{ my_name }} config file"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/jupyterhub_config.py.j2"
+      dest: "{{ my_path }}/jupyterhub/jupyterhub_config.py"
+      owner: 1000
+      group: 1000
+      mode: 0644
+    notify: "{{ my_name }} service restart"
+
+  - name: "{{ my_name }} wrapper script"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/jupyterhub_vanilla.sh.j2"
+      dest: "{{ my_path }}/jupyterhub/jupyterhub_vanilla.sh"
+      owner: 1000
+      group: 1000
+      mode: 0755
+    notify: "{{ my_name }} service restart"
+
+  - name: "{{ my_name }} service file"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/jupyterhub_vanilla.service.j2"
+      dest: "/usr/lib/systemd/system/jupyterhub_vanilla.service"
+      owner: root
+      group: root
+      mode: 0644
+    notify: "{{ my_name }} service restart"
+
+  - name: "{{ my_name }} service enable"
+    ansible.builtin.service:
+      name: "{{ my_name }}"
+      enabled: yes
+
+  handlers:
+
+  - name: "{{ my_name }} permissions"
+    ansible.builtin.file:
+      path: "{{ my_path }}"
+      state: directory
+      recurse: true
+      owner: 1000
+      group: 1000
+
+  - name: "{{ my_name }} service restart"
+    ansible.builtin.service:
+      name: "{{ my_name }}"
+      state: restarted

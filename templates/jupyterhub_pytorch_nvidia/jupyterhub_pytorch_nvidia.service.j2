@@ -1,0 +1,15 @@
+[Unit]
+Description = JupyterHub
+After = network-online.target
+
+[Service]
+Type = simple
+User = ubuntu
+Group = ubuntu
+WorkingDirectory = {{ my_path }}/jupyterhub
+ExecStart = {{ my_path }}/jupyterhub/jupyterhub_pytorch_nvidia.sh
+Restart = on-failure
+TimeoutSec = 15
+
+[Install]
+WantedBy = multi-user.target

@@ -1,0 +1,27 @@
+## Nvidia repos for GPU drivers and Cuda
+## Adapted from Nvidia docs:
+## https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/index.html#ubuntu-installation-network
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: repos_nvidia
+    - nvidia_distro_ubuntu: "{{ ansible_distribution_version | replace('.', '') }}"
+
+  tasks:
+
+  - name: "{{ my_name }} install nvidia cuda apt repo"
+    ansible.builtin.apt:
+      deb: "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{{ nvidia_distro_ubuntu }}/{{ ansible_machine }}/cuda-keyring_1.1-1_all.deb"
+      update_cache: true
+    when: ansible_distribution == "Ubuntu"
+    notify: "{{ my_name }} update apt"
+
+  handlers:
+
+  - name: "{{ my_name }} update apt"
+    ansible.builtin.apt:
+      update_cache: true
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"

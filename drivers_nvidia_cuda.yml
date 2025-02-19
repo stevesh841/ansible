@@ -1,0 +1,25 @@
+- ansible.builtin.import_playbook: repos_distro_au.yml
+- ansible.builtin.import_playbook: repos_nvidia.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "drivers_nvidia_cuda"
+    - my_packages_deb:
+      - cuda-drivers
+      #- cuda-toolkit 
+
+  tasks:
+
+  - name: "{{ my_name }} remove old nvidia kernel modules"
+    ansible.builtin.command: /usr/sbin/rmmod -vf nvidia_uvm nvidia_drm nvidia_modeset nvidia
+    ignore_errors: true
+
+  - name: "{{ my_name }} install nvidia cuda drivers"
+    ansible.builtin.package:
+       name: "{{ my_packages_deb }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+

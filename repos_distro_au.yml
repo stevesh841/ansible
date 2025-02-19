@@ -1,0 +1,30 @@
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "repos_distro_au"
+
+  tasks:
+
+  - name: "{{ my_name }} configure APT for Australian mirror"
+    ansible.builtin.deb822_repository:
+      name: "ubuntu"
+      types: ["deb", "deb-src"]
+      uris: "http://au.archive.ubuntu.com/ubuntu"
+      suites: "{{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates {{ ansible_distribution_release }}-backports {{ ansible_distribution_release }}-security"
+      components:
+        - main
+        - restricted
+        - multiverse
+        - universe
+      signed_by: "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+    when: ansible_distribution == "Ubuntu"
+    notify: "{{ my_name }} update apt"
+
+  handlers:
+
+  - name: "{{ my_name }} update apt"
+    ansible.builtin.apt:
+      update_cache: true
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"

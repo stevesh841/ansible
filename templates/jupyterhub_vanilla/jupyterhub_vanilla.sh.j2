@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source {{ my_path }}/python/bin/activate
+
+cd {{ my_path }}/jupyterhub || exit 1
+
+jupyterhub
