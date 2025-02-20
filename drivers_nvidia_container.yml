@@ -1,0 +1,72 @@
+## Adapted from:
+## https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+
+- ansible.builtin.import_playbook: repos_distro_au.yml
+- ansible.builtin.import_playbook: repos_nvidia.yml
+- ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
+- ansible.builtin.import_playbook: services_docker.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "drivers_nvidia_container"
+    - my_deb_prereq:
+      - gpg
+      - aria2
+      - ca-certificates
+    - my_deb_nvidia:
+      - nvidia-container-toolkit
+
+  tasks:
+
+  - name: "{{ my_name }} install prereqs"
+    ansible.builtin.apt:
+       name: "{{ my_deb_prereq }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} download nvidia GPG key"
+    ansible.builtin.get_url:
+      url: https://nvidia.github.io/libnvidia-container/gpgkey
+      dest: /tmp/nvidia-container-toolkit-keyring.asc
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} convert key from asc to gpg"
+    ansible.builtin.command: /usr/bin/gpg --batch --yes --dearmor --output /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg /tmp/nvidia-container-toolkit-keyring.asc
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} apt sources list"
+    ansible.builtin.copy:
+      dest: /etc/apt/sources.list.d/nvidia-container-toolkit.list
+      content: 'deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /'
+    when: ansible_distribution == "Ubuntu"
+
+  - name: "{{ my_name }} install nvidia container toolkit"
+    ansible.builtin.apt:
+      name: "{{ my_deb_nvidia }}"
+      state: latest
+      update_cache: true
+    notify: "{{ my_name }} restart service"
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} change default docker runtime to nvidia"
+    ansible.builtin.command: /usr/bin/nvidia-ctk runtime configure --runtime docker --nvidia-set-as-default
+    notify: "{{ my_name }} restart service"
+
+  handlers:
+
+  - name: "{{ my_name }} update apt"
+    ansible.builtin.apt:
+      update_cache: true
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} restart service"
+    ansible.builtin.service:
+      name: docker
+      state: restarted
