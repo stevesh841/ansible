@@ -1,0 +1,73 @@
+## Ollama: https://github.com/ollama/ollama/blob/main/docs/linux.md
+## Open-WebUI: https://docs.openwebui.com/getting-started/quick-start/
+
+- ansible.builtin.import_playbook: service_portainer_nvidia.yml
+
+- hosts: localhost
+  gather_facts: no
+
+  vars:
+    - my_name: "app_ollama_integrations"
+    - my_path: "/opt/sharonai"
+    - my_packages_deb:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - git
+      - wget
+      - curl
+      - aria2
+
+  tasks:
+
+  - name: "{{ my_name }} install pre-requisite deb packages"
+    ansible.builtin.package:
+       name: "{{ my_packages_deb }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} top level path"
+    ansible.builtin.file:
+      path: "{{ my_path }}"
+      state: directory
+      recurse: true
+      owner: 1000
+      group: 1000
+
+## Ollama: https://github.com/ollama/ollama/blob/main/docs/linux.md
+
+  - name: "{{ my_name }} create ollama volume"
+    ansible.builtin.command: docker volume create ollama
+
+  - name: "{{ my_name }} install and start ollama"
+    ansible.builtin.command: docker run -d --gpus=all -v ollama:/root/.ollama -e OLLAMA_HOST=0.0.0.0:11434 -p 11434:11434 --name ollama --restart=always ollama/ollama
+
+## Open-WebUI: https://docs.openwebui.com/getting-started/quick-start/
+
+  - name: "{{ my_name }} create open-webui volume"
+    ansible.builtin.command: docker volume create open-webui
+
+  - name: "{{ my_name }} install and start open-webui"
+    ansible.builtin.command: docker run -d -p 3000:8080 -v open-webui:/app/backend/data -e OLLAMA_BASE_URL=http://172.17.0.1:11434 --name open-webui --restart always ghcr.io/open-webui/open-webui:main
+
+
+## n8n: 
+
+  - name: "{{ my_name }} create n8n volume"
+    ansible.builtin.command: docker volume create n8n_data
+
+  - name: "{{ my_name }} install and start n8n"
+    ansible.builtin.command: docker run -d --name n8n -e N8N_SECURE_COOKIE=false --restart=always -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
+
+  handlers:
+
+  - name: "{{ my_name }} my_path permissions"
+    ansible.builtin.file:
+      path: "{{ my_path }}"
+      state: directory
+      recurse: true
+      owner: 1000
+      group: 1000
+
+
