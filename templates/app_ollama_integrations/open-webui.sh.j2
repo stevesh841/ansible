@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source {{ my_path }}/open-webui/bin/activate
+
+cd {{ my_path }}/open-webui || exit 1
+
+open-webui serve

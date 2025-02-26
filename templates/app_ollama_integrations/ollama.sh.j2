@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd {{ my_path }}/ollama || exit 1
+
+export PATH={{ my_path }}/ollama/bin:${PATH}
+export LD_LIBRARY_PATH={{ my_path }}/ollama/lib:${LD_LIBRARY_PATH}
+
+
+export OLLAMA_HOST=0.0.0.0:11434
+ollama serve
