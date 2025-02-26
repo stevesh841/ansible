@@ -5,7 +5,7 @@
   gather_facts: yes
 
   vars:
-    - my_name: "services_docker"
+    - my_name: "service_docker"
     - my_deb_prereq:
       - gpg
       - aria2
