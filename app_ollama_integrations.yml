@@ -124,32 +124,37 @@
   - name: "{{ my_name }} firewalld define ollama service"
     ansible.builtin.command:
       cmd: firewall-cmd --permanent --new-service=ollama
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld define open-webui service"
     ansible.builtin.command:
       cmd: firewall-cmd --permanent --new-service=open-webui
-
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld define ollama port"
     ansible.builtin.command:
-      cmd: firewall-cmd --permanent --service=ollama --add-port=11434
+      cmd: firewall-cmd --permanent --service=ollama --add-port=11434/tcp
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld define open-webui port"
     ansible.builtin.command:
-      cmd: firewall-cmd --permanent --service=open-webui --add-port=8080
+      cmd: firewall-cmd --permanent --service=open-webui --add-port=8080/tcp
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld allow ollama"
     ansible.builtin.command:
       cmd: firewall-cmd --permanent --add-service=ollama
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld allow open-webui"
     ansible.builtin.command:
       cmd: firewall-cmd --permanent --add-service=open-webui
+    ignore_errors: true
 
   - name: "{{ my_name }} firewalld reload"
     ansible.builtin.command:
       cmd: firewall-cmd --reload
-
+    ignore_errors: true
 
   handlers:
 

@@ -16,6 +16,7 @@
     ansible.builtin.service:
       name: nvidia-persistenced
       state: stopped
+      enabled: false
     ignore_errors: true
 
   - name: "{{ my_name }} remove old nvidia kernel modules"
@@ -29,8 +30,8 @@
     when: ansible_distribution == "Ubuntu" or
           ansible_distribution == "Debian"
 
-  - name: "{{ my_name }} restart nvidia-persistenced"
-    ansible.builtin.service:
-      name: nvidia-persistenced
-      state: restarted
-      enabled: true
+#  - name: "{{ my_name }} restart nvidia-persistenced"
+#    ansible.builtin.service:
+#      name: nvidia-persistenced
+#      state: restarted
+#      enabled: true
