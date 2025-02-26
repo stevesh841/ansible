@@ -12,6 +12,12 @@
 
   tasks:
 
+  - name: "{{ my_name }} stop nvidia-persistenced"
+    ansible.builtin.service:
+      name: nvidia-persistenced
+      state: stopped
+    ignore_errors: true
+
   - name: "{{ my_name }} remove old nvidia kernel modules"
     ansible.builtin.command: /usr/sbin/rmmod -vf nvidia_uvm nvidia_drm nvidia_modeset nvidia
     ignore_errors: true
@@ -23,3 +29,8 @@
     when: ansible_distribution == "Ubuntu" or
           ansible_distribution == "Debian"
 
+  - name: "{{ my_name }} restart nvidia-persistenced"
+    ansible.builtin.service:
+      name: nvidia-persistenced
+      state: restarted
+      enabled: true

@@ -1,0 +1,52 @@
+## Cockpit and firewalld
+## https://cockpit-project.org/guide/latest/feature-firewall
+
+- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: no
+
+  vars:
+    - my_name: "service_cockpit_firewalld"
+    - my_path: "/opt/sharonai"
+    - my_packages_deb:
+      - sscg
+      - firewalld
+      - cockpit
+
+  tasks:
+
+  - name: "{{ my_name }} install pre-requisite deb packages"
+    ansible.builtin.package:
+       name: "{{ my_packages_deb }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} firewalld service"
+    ansible.builtin.service:
+      name: firewalld
+      state: started
+      enabled: true
+
+  - name: "{{ my_name }} cockpit service"
+    ansible.builtin.service:
+      name: cockpit
+      state: started
+      enabled: true
+
+#  - name: "{{ my_name }} firewalld define cockpit"
+#    ansible.builtin.command:
+#      cmd: firewall-cmd --permanent --new-service=cockpit
+
+#  - name: "{{ my_name }} firewalld allow cockpit"
+#    ansible.builtin.command:
+#      cmd: firewall-cmd --permanent --service=cockpit --add-port=9090
+
+  - name: "{{ my_name }} firewalld allow cockpit"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --add-service=cockpit
+
+  - name: "{{ my_name }} reload firewalld"
+    ansible.builtin.command:
+      cmd: firewall-cmd --reload

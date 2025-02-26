@@ -3,6 +3,7 @@
 
 - ansible.builtin.import_playbook: repos_distro_au.yml
 - ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
+- ansible.builtin.import_playbook: service_cockpit_firewalld.yml
 
 - hosts: localhost
   gather_facts: no
@@ -18,8 +19,6 @@
       - wget
       - curl
       - aria2
-      - firewalld
-      - cockpit
 
   tasks:
 
@@ -119,6 +118,38 @@
       group: root
       mode: 0644
     notify: "{{ my_name }} open-webui service restart"
+
+## Firewall settings
+
+  - name: "{{ my_name }} firewalld define ollama service"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --new-service=ollama
+
+  - name: "{{ my_name }} firewalld define open-webui service"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --new-service=open-webui
+
+
+  - name: "{{ my_name }} firewalld define ollama port"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --service=ollama --add-port=11434
+
+  - name: "{{ my_name }} firewalld define open-webui port"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --service=open-webui --add-port=8080
+
+  - name: "{{ my_name }} firewalld allow ollama"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --add-service=ollama
+
+  - name: "{{ my_name }} firewalld allow open-webui"
+    ansible.builtin.command:
+      cmd: firewall-cmd --permanent --add-service=open-webui
+
+  - name: "{{ my_name }} firewalld reload"
+    ansible.builtin.command:
+      cmd: firewall-cmd --reload
+
 
   handlers:
 
