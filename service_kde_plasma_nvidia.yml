@@ -1,0 +1,65 @@
+## KDE Neon with KasmVNC for remote access
+
+- ansible.builtin.import_playbook: repos_distro_au.yml
+- ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
+
+- hosts: localhost
+  gather_facts: no
+
+  vars:
+    - my_name: "service_kde_plasma_nvidia"
+    - my_packages_deb_core:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - git
+      - wget
+      - curl
+      - aria2
+    - my_packages_deb_kde:
+      - neon-desktop
+      - neon-repositories-mozilla-firefox
+
+  tasks:
+
+  - name: "{{ my_name }} install pre-requisite deb packages"
+    ansible.builtin.package:
+       name: "{{ my_packages_deb_core }}"
+       state: latest
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"
+
+  - name: "{{ my_name }} configure APT for KDE Neon"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/neon.sources.j2"
+      dest: "/etc/apt/sources.list.d/neon.sources"
+      owner: root
+      group: root
+      mode: 0644
+    when: ansible_distribution == "Ubuntu"
+    notify: "{{ my_name }} update apt"
+
+  - name: "{{ my_name }} configure APT for KDE Neon Mozilla"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/org.kde.neon.packages.mozilla.org.sources.j2"
+      dest: "/etc/apt/sources.list.d/org.kde.neon.packages.mozilla.org.sources"
+      owner: root
+      group: root
+      mode: 0644
+    when: ansible_distribution == "Ubuntu"
+    notify: "{{ my_name }} update apt"
+
+  - name: "{{ my_name }} install KDE Neon"
+    ansible.builtin.apt:
+      name: "{{ my_packages_deb_kde }}"
+      state: latest
+      update_cache: true
+    when: ansible_distribution == "Ubuntu"
+
+  handlers:
+
+  - name: "{{ my_name }} update apt"
+    ansible.builtin.apt:
+      update_cache: true
+    when: ansible_distribution == "Ubuntu" or
+          ansible_distribution == "Debian"

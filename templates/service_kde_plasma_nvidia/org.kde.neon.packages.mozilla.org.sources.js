@@ -1,0 +1,6 @@
+X-Repolib-Name: KDE neon org.kde.neon.packages.mozilla.org
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Signed-By: /etc/apt/keyrings/org.kde.neon.packages.mozilla.org.asc
