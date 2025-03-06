@@ -63,3 +63,11 @@
       update_cache: true
     when: ansible_distribution == "Ubuntu" or
           ansible_distribution == "Debian"
+
+
+
+## todo
+## https://archive.neon.kde.org/stable/pool/main/n/neon-keyring/neon-keyring_2024.09.24+p24.04+vstable+git20250210.1833_all.deb
+## https://archive.neon.kde.org/stable/pool/main/n/neon-repositories/neon-repositories-mozilla-firefox_0.2+p24.04+vstable+git20250301.0229_all.deb
+## gdebi-core ssl-cert
+## 
