@@ -1,0 +1,75 @@
+- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "service_slurm_controller"
+    - my_packages_deb:
+      - slurmctld
+      - slurm-client
+      - slurm-wlm
+      - munge
+
+  tasks:
+
+  - name: "{{ my_name }} install packages"
+    ansible.builtin.apt:
+      name: "{{ my_packages_deb }}"
+      state: latest
+      update_cache: true
+
+  - name: "{{ my_name }} slurmdbd.conf"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurmdbd.conf.j2"
+      dest: "/etc/slurm/slurmdbd.conf"
+      owner: "slurm"
+      group: "slurm"
+      mode: 0600
+
+  - name: "{{ my_name }} /var/spool/slurmctld path"
+    ansible.builtin.file:
+      path: "/var/spool/slurmctld"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} /var/spool/slurmd path"
+    ansible.builtin.file:
+      path: "/var/spool/slurmd"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} /var/log/slurm path"
+    ansible.builtin.file:
+      path: "/var/log/slurm"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} slurm.conf"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurm.conf.j2"
+      dest: "/etc/slurm/slurm.conf"
+      owner: "slurm"
+      group: "slurm"
+      mode: 0600
+    notify: "{{ my_name }} restart slurmctld"
+
+  - name: "{{ my_name }} disable slurmd"
+    ansible.builtin.service:
+      name: "slurmd"
+      state: stopped
+      enabled: false
+
+  handlers:
+
+  - name: "{{ my_name }} restart slurmctld"
+    ansible.builtin.service:
+      name: "slurmctld"
+      state: restarted
+      enabled: true

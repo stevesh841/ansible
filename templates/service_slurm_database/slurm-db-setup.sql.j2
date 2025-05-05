@@ -1,0 +1,6 @@
+create user 'slurmdbuser'@'localhost' identified by 'slurmdbpass';
+create user 'slurmdbuser'@'%' identified by 'slurmdbpass';
+grant all on slurm_acct_db.* to 'slurmdbuser'@'%';
+grant all on slurm_acct_db.* to 'slurmdbuser'@'localhost';
+grant all on slurm_jobcomp_db.* to 'slurmdbuser'@'%';
+grant all on slurm_jobcomp_db.* to 'slurmdbuser'@'localhost';

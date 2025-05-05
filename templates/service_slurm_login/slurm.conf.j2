@@ -1,0 +1,46 @@
+## Slurm Demo cluster
+## cluster name: slurm-cluster
+## Controller / head node: slurm-ctl
+## Database /accounting node: slurm-db
+## Login / interactive node: slurm-login
+## GPU worker nodes: slurm-gpu01 .. slurm-gpuNN
+ClusterName=slurm-cluster
+SlurmctldHost=slurm-ctl
+ProctrackType=proctrack/cgroup
+ReturnToService=1
+SlurmctldPidFile=/var/run/slurmctld.pid
+SlurmctldPort=6817
+SlurmdPidFile=/var/run/slurmd.pid
+SlurmdPort=6818
+SlurmdSpoolDir=/var/spool/slurmd
+SlurmUser=slurm
+StateSaveLocation=/var/spool/slurmctld
+TaskPlugin=task/affinity,task/cgroup
+InactiveLimit=0
+KillWait=30
+MinJobAge=300
+SlurmctldTimeout=120
+SlurmdTimeout=300
+Waittime=0
+SchedulerType=sched/backfill
+SelectType=select/cons_tres
+JobAcctGatherFrequency=30
+JobAcctGatherType=jobacct_gather/cgroup
+SlurmctldDebug=info
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdDebug=info
+SlurmdLogFile=/var/log/slurm/slurmd.log
+GresTypes=gpu,mps
+NodeName=slurm-gpu01 Gres=gpu:h100:1,mps:400 CPUs=14 Sockets=1 CoresPerSocket=14 ThreadsPerCore=1
+PartitionName=partition Nodes=ALL Default=YES MaxTime=INFINITE State=UP
+## JobComp
+JobCompType=jobcomp/mysql
+#JobCompHost=slurm-db
+JobCompHost=slurm-ctl
+JobCompUser=slurmdbuser
+JobCompPass=slurmdbpass
+## Accounting
+#AccountingStorageHost=slurm-db
+AccountingStorageHost=slurm-ctl
+AccountingStorageType=accounting_storage/slurmdbd
+AccountingStorageUser=slurm

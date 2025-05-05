@@ -1,0 +1,92 @@
+- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "service_slurm_database"
+    - my_packages_deb:
+      - mariadb-server
+      - mariadb-client
+      - munge
+      - slurmdbd
+
+  tasks:
+
+  - name: "{{ my_name }} install packages"
+    ansible.builtin.apt:
+      name: "{{ my_packages_deb }}"
+      state: latest
+      update_cache: true
+
+  - name: "{{ my_name }} mariadb network config"
+    ansible.builtin.ini_file:
+      path: "/etc/mysql/mariadb.conf.d/50-server.cnf"
+      section: "mariadbd"
+      option: "bind-address"
+      value: "0.0.0.0"
+    notify: "{{ my_name }} restart mariadb"
+
+  - name: "{{ my_name }} slurm-db sql script"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurm-db-setup.sql.j2"
+      dest: "/tmp/slurm-db-setup.sql"
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: "{{ my_name }} slurm-db bash script"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurm-db-setup.sh.j2"
+      dest: "/tmp/slurm-db-setup.sh"
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: "{{ my_name }} create slurm database users"
+    ansible.builtin.command: /bin/bash /tmp/slurm-db-setup.sh
+
+  - name: "{{ my_name }} /var/spool/slurmd path"
+    ansible.builtin.file:
+      path: "/var/spool/slurmd"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} /var/log/slurm path"
+    ansible.builtin.file:
+      path: "/var/log/slurm"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} slurmdbd.conf"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurmdbd.conf.j2"
+      dest: "/etc/slurm/slurmdbd.conf"
+      owner: "slurm"
+      group: "slurm"
+      mode: 0600
+    notify: "{{ my_name }} restart slurmdbd"
+
+  - name: "{{ my_name }} disable slurmd"
+    ansible.builtin.service:
+      name: "slurmd"
+      state: stopped
+      enabled: false
+
+  handlers:
+
+  - name: "{{ my_name }} restart slurmdbd"
+    ansible.builtin.service:
+      name: "slurmdbd"
+      state: restarted
+      enabled: true
+
+  - name: "{{ my_name }} restart mariadb"
+    ansible.builtin.service:
+      name: "mariadb"
+      state: restarted
+      enabled: true

@@ -1,0 +1,57 @@
+- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "service_slurm_login"
+    - my_packages_deb:
+      - munge
+      - slurm-client
+
+  tasks:
+
+  - name: "{{ my_name }} install packages"
+    ansible.builtin.apt:
+      name: "{{ my_packages_deb }}"
+      state: latest
+      update_cache: true
+
+  - name: "{{ my_name }} /var/spool/slurmd path"
+    ansible.builtin.file:
+      path: "/var/spool/slurmd"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} /var/log/slurm path"
+    ansible.builtin.file:
+      path: "/var/log/slurm"
+      state: directory
+      recurse: true
+      owner: "slurm"
+      group: "slurm"
+
+  - name: "{{ my_name }} slurm.conf"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/slurm.conf.j2"
+      dest: "/etc/slurm/slurm.conf"
+      owner: "slurm"
+      group: "slurm"
+      mode: 0600
+    notify: "{{ my_name }} restart slurmd"
+
+  - name: "{{ my_name }} disable slurmd"
+    ansible.builtin.service:
+      name: "slurmd"
+      state: stopped
+      enabled: false
+
+  handlers:
+
+  - name: "{{ my_name }} restart slurmd"
+    ansible.builtin.service:
+      name: "slurmd"
+      state: restarted
+      enabled: true
