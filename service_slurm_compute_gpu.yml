@@ -1,4 +1,5 @@
 - ansible.builtin.import_playbook: repos_distro_au.yml
+- ansible.builtin.import_playbook: repos_nvidia.yml
 - ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
 
 - hosts: localhost
@@ -10,8 +11,45 @@
       - munge
       - slurmd
       - slurm-client
+      - xubuntu-desktop-minimal
+      - turbovnc
+      - virtualgl
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - python-is-python3
 
   tasks:
+
+  - name: "{{ my_name }} download virtualgl signing  key"
+    ansible.builtin.get_url:
+      url: https://packagecloud.io/dcommander/virtualgl/gpgkey
+      dest: /tmp/VirtualGL.asc
+      force: true
+
+  - name: "{{ my_name }} download turbovnc signing key"
+    ansible.builtin.get_url:
+      url: https://packagecloud.io/dcommander/turbovnc/gpgkey
+      dest: /tmp/TurboVNC.asc
+      force: true
+
+  - name: "{{ my_name }} dearmour virtualgl signing  key"
+    ansible.builtin.command: /usr/bin/gpg --batch --yes --dearmor --output /etc/apt/trusted.gpg.d/VirtualGL.gpg /tmp/VirtualGL.asc
+
+  - name: "{{ my_name }} dearmour turbovnc signing  key"
+    ansible.builtin.command: /usr/bin/gpg --batch --yes --dearmor --output /etc/apt/trusted.gpg.d/TurboVNC.gpg /tmp/TurboVNC.asc
+
+  - name: "{{ my_name }} download virtualgl sources list"
+    ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/VirtualGL/repo/main/VirtualGL.list
+      dest: /etc/apt/sources.list.d/VirtualGL.list
+      force: true
+
+  - name: "{{ my_name }} download turbovnc sources list"
+    ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.list
+      dest: /etc/apt/sources.list.d/TurboVNC.list
+      force: true
 
   - name: "{{ my_name }} install packages"
     ansible.builtin.apt:
@@ -43,6 +81,22 @@
       group: "slurm"
       mode: 0600
     notify: "{{ my_name }} restart slurmd"
+
+  - name: "{{ my_name }} disable lightdm"
+    ansible.builtin.service:
+      name: "lightdm"
+      state: stopped
+      enabled: false
+
+  - name: "{{ my_name }} install JupyterLab Tensorflow"
+    ansible.builtin.pip:
+      virtualenv: "/opt/jupyterlab_tensorflow"
+      name: "jupyterlab,numpy,matplotlib,pandas,configurable-http-proxy,tensorflow[and-cuda],onnx,keras,numba,datasets"
+
+  - name: "{{ my_name }} install JupyterLab PyTorch"
+    ansible.builtin.pip:
+      virtualenv: "/opt/jupyterlab_pytorch"
+      name: "jupyterlab,numpy,matplotlib,pandas,configurable-http-proxy,torch,torchvision,torchaudio,onnx,keras,numba,datasets"
 
   handlers:
 
