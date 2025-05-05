@@ -1,0 +1,26 @@
+#!/bin/bash
+
+cd /opt || exit 1
+
+if [ -d relion ]
+then
+  ## /opt/relion exists, delete old build cache
+  cd /opt/relion || exit 1
+  rm -rf build
+else
+  ## /opt/relion doesn't exist, grab it via git
+  cd /opt || exit 1
+  git clone --recursive https://github.com/3dem/relion.git
+fi
+
+cd /opt/relion || exit 1
+git reset --hard HEAD
+git clean -df
+git checkout master
+git pull --recurse-submodules=yes
+git checkout 5.0.0
+mkdir build
+cd /opt/relion/build || exit 1
+cmake ../
+make -j${nproc}
+

@@ -1,0 +1,56 @@
+#- ansible.builtin.import_playbook: repos_distro_au.yml
+#- ansible.builtin.import_playbook: repos_nvidia.yml
+#- ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "service_slurm_compute_gpu_relion"
+    - my_packages_deb:
+      - build-essential
+      - gcc
+      - g++
+      - clang
+      - llvm
+      - lld
+      - cuda-toolkit-12-8
+      - git
+      - aria2
+      - ccache
+      - cmake
+      - x11proto-dev
+      - libopenmpi-dev
+      - openmpi-bin
+      - openmpi-common
+      - libx11-dev
+      - libfltk1.3-dev
+      - libtiff-dev
+      - libpng-dev
+      - libpng++-dev
+      - pbzip2
+      - libbzip3-dev
+      - mpi-default-bin
+      - mpi-default-dev
+      - libfftw3-dev
+      - ghostscript
+      - libxft-dev
+
+  tasks:
+
+  - name: "{{ my_name }} install packages"
+    ansible.builtin.apt:
+      name: "{{ my_packages_deb }}"
+      state: latest
+      update_cache: true
+
+  - name: "{{ my_name }} build script"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/build_relion.sh.j2"
+      dest: "/root/build_relion.sh"
+      owner: 0
+      group: 0
+      mode: 0700
+
+  - name: "{{ my_name }} build relion"
+    ansible.builtin.command: /root/build_relion.sh
