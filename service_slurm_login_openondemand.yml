@@ -1,0 +1,40 @@
+#- ansible.builtin.import_playbook: repos_distro_au.yml
+
+- hosts: localhost
+  gather_facts: yes
+
+  vars:
+    - my_name: "service_slurm_login"
+    - my_packages_pre:
+      - apt-transport-https
+      - ca-certificates
+      - apache2
+    - my_packages_ood:
+      - ondemand
+
+  tasks:
+
+  - name: "{{ my_name }} install pre-req packages"
+    ansible.builtin.apt:
+      name: "{{ my_packages_pre }}"
+      state: latest
+      update_cache: true
+
+
+  - name: "{{ my_name }} install ondemand repo"
+    ansible.builtin.apt:
+      deb: "https://apt.osc.edu/ondemand/4.0/ondemand-release-web_4.0.0-noble_all.deb"
+      update_cache: true
+    notify: "{{ my_name }} update apt"
+
+  - name: "{{ my_name }} install ondemand services"
+    ansible.builtin.apt:
+      name: "{{ my_packages_ood }}"
+      state: latest
+      update_cache: true
+
+  handlers:
+
+  - name: "{{ my_name }} update apt"
+    ansible.builtin.apt:
+      update_cache: true
