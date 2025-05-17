@@ -143,7 +143,7 @@
       dest: "/var/www/ood/apps/sys/bc_jupyter_tensorflow/template/script.sh.erb"
       owner: root
       group: root
-      mode: 0644
+      mode: 0755
 
   - name: "{{ my_name }} bc_jupyter_pytorch script.sh.erb"
     ansible.builtin.template:
@@ -151,7 +151,7 @@
       dest: "/var/www/ood/apps/sys/bc_jupyter_pytorch/template/script.sh.erb"
       owner: root
       group: root
-      mode: 0644
+      mode: 0755
 
   - name: "{{ my_name }} add default user to gpu groups"
     ansible.builtin.user:
