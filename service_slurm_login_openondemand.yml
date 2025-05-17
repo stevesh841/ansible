@@ -86,12 +86,14 @@
     ansible.builtin.git:
       repo: https://github.com/OSC/bc_example_jupyter.git
       dest: /var/www/ood/apps/sys/bc_jupyter_tensorflow
+    ignore_errors: true
     notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_pytorch"
     ansible.builtin.git:
       repo: https://github.com/OSC/bc_example_jupyter.git
       dest: /var/www/ood/apps/sys/bc_jupyter_pytorch
+    ignore_errors: true
     notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_tensorflow form.yml"
