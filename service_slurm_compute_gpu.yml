@@ -19,6 +19,7 @@
       - python3-virtualenv
       - python-is-python3
       - websockify
+      - nfs-common
 
   tasks:
 
@@ -107,6 +108,13 @@
     ansible.builtin.pip:
       virtualenv: "/opt/jupyterlab_pytorch"
       name: "jupyterlab,numpy,matplotlib,pandas,configurable-http-proxy,torch,torchvision,torchaudio,onnx,keras,numba,datasets"
+
+  - name: "{{ my_name }} add default user to gpu groups"
+    ansible.builtin.user:
+      name: ubuntu
+      groups: render,video
+      append: yes
+    ignore_errors: true
 
   handlers:
 

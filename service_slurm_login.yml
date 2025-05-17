@@ -8,6 +8,8 @@
     - my_packages_deb:
       - munge
       - slurm-client
+      - nfs-common
+      - nfs-kernel-server
 
   tasks:
 

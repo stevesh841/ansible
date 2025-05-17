@@ -39,8 +39,11 @@
     notify: "{{ my_name }} restart apache2"
 
   - name: "{{ my_name }} configure apache2-user permissions"
-    ansible.builtin.command:
-      cmd: usermod www-data -G shadow,slurm
+    ansible.builtin.user:
+      name: www-data
+      groups: shadow,slurm
+      append: yes
+    ignore_errors: true
     notify: "{{ my_name }} restart apache2"
 
   - name: "{{ my_name }} configure ood pam auth"
