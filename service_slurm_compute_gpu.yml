@@ -20,6 +20,8 @@
       - python-is-python3
       - websockify
       - nfs-common
+      - vulkan-tools
+      - mesa-utils
 
   tasks:
 
