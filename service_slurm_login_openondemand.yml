@@ -86,11 +86,13 @@
     ansible.builtin.git:
       repo: https://github.com/OSC/bc_example_jupyter.git
       dest: /var/www/ood/apps/sys/bc_jupyter_tensorflow
+    notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_pytorch"
     ansible.builtin.git:
       repo: https://github.com/OSC/bc_example_jupyter.git
       dest: /var/www/ood/apps/sys/bc_jupyter_pytorch
+    notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_tensorflow form.yml"
     ansible.builtin.template:
@@ -99,6 +101,7 @@
       owner: root
       group: root
       mode: 0644
+    notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_pytorch form.yml"
     ansible.builtin.template:
@@ -107,6 +110,25 @@
       owner: root
       group: root
       mode: 0644
+    notify: "{{ my_name }} update ood portal"
+
+  - name: "{{ my_name }} bc_jupyter_tensorflow manifest.yml"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_tensorflow_manifest.yml.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_tensorflow/manifest.yml"
+      owner: root
+      group: root
+      mode: 0644
+    notify: "{{ my_name }} update ood portal"
+
+  - name: "{{ my_name }} bc_jupyter_pytorch manifest.yml"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_pytorch_manifest.yml.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_pytorch/manifest.yml"
+      owner: root
+      group: root
+      mode: 0644
+    notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_tensorflow script.sh.erb"
     ansible.builtin.template:
@@ -115,6 +137,7 @@
       owner: root
       group: root
       mode: 0755
+    notify: "{{ my_name }} update ood portal"
 
   - name: "{{ my_name }} bc_jupyter_pytorch script.sh.erb"
     ansible.builtin.template:
@@ -123,6 +146,7 @@
       owner: root
       group: root
       mode: 0755
+    notify: "{{ my_name }} update ood portal"
 
   handlers:
 
