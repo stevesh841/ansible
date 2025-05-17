@@ -82,6 +82,48 @@
       mode: 0644
     notify: "{{ my_name }} update ood portal"
 
+  - name: "{{ my_name }} bc_jupyter_tensorflow"
+    ansible.builtin.git:
+      repo: https://github.com/OSC/bc_example_jupyter.git
+      dest: /var/www/ood/apps/sys/bc_jupyter_tensorflow
+
+  - name: "{{ my_name }} bc_jupyter_pytorch"
+    ansible.builtin.git:
+      repo: https://github.com/OSC/bc_example_jupyter.git
+      dest: /var/www/ood/apps/sys/bc_jupyter_pytorch
+
+  - name: "{{ my_name }} bc_jupyter_tensorflow form.yml"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_tensorflow_form.yml.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_tensorflow/form.yml"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: "{{ my_name }} bc_jupyter_pytorch form.yml"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_pytorch_form.yml.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_pytorch/form.yml"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: "{{ my_name }} bc_jupyter_tensorflow script.sh.erb"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_tensorflow_script.sh.erb.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_tensorflow/template/script.sh.erb"
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: "{{ my_name }} bc_jupyter_pytorch script.sh.erb"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/bc_jupyter_pytorch_script.sh.erb.j2"
+      dest: "/var/www/ood/apps/sys/bc_jupyter_pytorch/template/script.sh.erb"
+      owner: root
+      group: root
+      mode: 0755
+
   handlers:
 
   - name: "{{ my_name }} update apt"
