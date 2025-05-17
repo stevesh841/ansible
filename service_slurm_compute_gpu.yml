@@ -18,6 +18,7 @@
       - python3-pip
       - python3-virtualenv
       - python-is-python3
+      - websockify
 
   tasks:
 
