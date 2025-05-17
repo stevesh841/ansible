@@ -79,7 +79,16 @@
       dest: "/etc/slurm/slurm.conf"
       owner: "slurm"
       group: "slurm"
-      mode: 0600
+      mode: 0640
+    notify: "{{ my_name }} restart slurmd"
+
+  - name: "{{ my_name }} slurm gres.conf"
+    ansible.builtin.template:
+      src: "templates/{{ my_name }}/gres.conf.j2"
+      dest: "/etc/slurm/gres.conf"
+      owner: "slurm"
+      group: "slurm"
+      mode: 0640
     notify: "{{ my_name }} restart slurmd"
 
   - name: "{{ my_name }} disable lightdm"
