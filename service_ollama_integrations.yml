@@ -5,7 +5,7 @@
 - ansible.builtin.import_playbook: service_docker.yml
 
 - hosts: localhost
-  gather_facts: no
+  gather_facts: yes
 
   vars:
     - my_name: "app_ollama_integrations"

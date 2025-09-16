@@ -6,7 +6,7 @@
 #- ansible.builtin.import_playbook: drivers_nvidia_cuda.yml
 
 - hosts: localhost
-  gather_facts: no
+  gather_facts: yes
 
   vars:
     - my_name: "jupyterhub_pytorch_nvidia"
