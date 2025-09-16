@@ -1,7 +1,8 @@
 ## Adapted from:
 ## https://docs.portainer.io/start/install-ce/server/docker/linux
 
-- ansible.builtin.import_playbook: drivers_nvidia_container.yml
+#- ansible.builtin.import_playbook: drivers_nvidia_container.yml
+- ansible.builtin.import_playbook: service_docker.yml
 
 - hosts: localhost
   gather_facts: yes
