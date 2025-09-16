@@ -1,20 +1,4 @@
-## Adapted from:
-## https://docs.portainer.io/start/install-ce/server/docker/linux
-
-#- ansible.builtin.import_playbook: drivers_nvidia_container.yml
-- ansible.builtin.import_playbook: service_docker.yml
-- ansible.builtin.import_playbook: drivers_nvidia_container.yml
-- hosts: localhost
-  gather_facts: yes
-
-  vars:
-    - my_name: "service_portainer_nvidia.yml"
-
-  tasks:
-
-  - name: "{{ my_name }} create portainer volume"
-    ansible.builtin.command: docker volume create portainer_data
-
-  - name: "{{ my_name }} install and start portainer"
-    ansible.builtin.command: docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts
-
+---
+- import_playbook: service_docker.yml
+- import_playbook: drivers_nvidia_container.yml
+- import_playbook: service_portainer.yml
